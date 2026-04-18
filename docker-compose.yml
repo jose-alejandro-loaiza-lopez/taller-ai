@@ -1,0 +1,43 @@
+services:
+  # --- API de Machine Learning (FastAPI) ---
+  ml-api:
+    build: ./ml-api
+    container_name: ml-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml-api/models:/app/models
+    restart: unless-stopped
+
+  # --- Base de Datos exclusiva para el AI Agent y registros ---
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=usuario_agente
+      - POSTGRES_PASSWORD=password_agente
+      - POSTGRES_DB=datos_taller
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # --- n8n (Persistencia estándar en SQLite) ---
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n_local
+    # n8n esperará a que la DB esté lista para poder conectarse como Tool
+    depends_on:
+      - db
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=tu_password_seguro
+      - N8N_EDITOR_BASE_URL=https://iotv3dfwtmpv.share.zrok.io/
+      - WEBHOOK_URL=https://iotv3dfwtmpv.share.zrok.io/
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+    restart: unless-stopped
