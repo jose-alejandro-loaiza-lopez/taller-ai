@@ -10,7 +10,7 @@ if not os.path.exists("models"):
 
 @app.get("/health")
 def health_check():
-    return {"status": "ready", "engine": "ollama-ready-via-n8n"}
+    return {"status": "ready", "engine": "scikit-learn-logistic-regression"}
 
 @app.post("/train")
 async def train(classifier_name: str = Form(...), file: UploadFile = File(...)):

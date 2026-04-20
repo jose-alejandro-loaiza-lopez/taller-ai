@@ -68,6 +68,25 @@ def predict_image(image_bytes, classifier_name):
 
     # Procesar imagen
     features = get_color_histogram(image_bytes).reshape(1, -1)
+    
+    # DEBUG: Validar dimensiones y características
+    expected_features = scaler.n_features_in_
+    actual_features = features.shape[1]
+    
+    if actual_features != expected_features:
+        return {
+            "error": f"Dimensión de características incorrecta. "
+                     f"Esperado: {expected_features}, Obtenido: {actual_features}. "
+                     f"El modelo se entrenó con características antiguas. "
+                     f"Reentrenar el modelo con el algoritmo actualizado."
+        }
+    
+    # Verificar estadísticas de las características
+    feature_mean = np.mean(features)
+    feature_max = np.max(features)
+    feature_min = np.min(features)
+    print(f"[DEBUG] Características - Media: {feature_mean:.4f}, Max: {feature_max:.4f}, Min: {feature_min:.4f}")
+    
     features_scaled = scaler.transform(features)
 
     # Predicción
